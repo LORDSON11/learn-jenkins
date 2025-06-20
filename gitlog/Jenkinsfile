@@ -1,0 +1,22 @@
+pipeline{
+    agent any
+
+stages{
+    stage('Clone Repository'){
+        steps{
+            git branch:'main',
+            url:https://github.com/LORDSON11/learn-jenkins.git
+            }
+        }
+        stage('Generate git log'){
+            steps{
+                sh 'git log >gitlog.txt'
+            }
+        }
+        stage('Archive log file'){
+            steps{
+                archiveArtifacts artifacts: 'gitlog.txt' ,onlyIfSuccessful: true
+            }
+        }
+    }
+}    
