@@ -1,0 +1,18 @@
+Pipeline{
+    agent any
+    stages{
+        stage('Clone Repository'){
+        steps{
+            git branch : 'main'
+            url : 'https://github.com/LORDSON11/learn-jenkins.git'
+      
+        }
+    }
+    stage('show commit id'){
+        steps{
+            echo 'Latest commit ID:'
+            sh 'git log -1 --pretty=format:"%H'
+        }
+    }
+}
+}
