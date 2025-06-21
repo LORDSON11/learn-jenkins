@@ -21,11 +21,12 @@ pipeline {
                     dir('terraform-docker/terraform') {
                         withAWS(credentials: 'aws-creds', region: 'ap-south-1') {
                             sh '''
-                                TMP_SSH_DIR="$(pwd)/.ssh"
+                                TMP_SSH_DIR="$(pwd)/tmp_ssh"
                                 mkdir -p "$TMP_SSH_DIR"
                                 cp "$NODE_PEM" "$TMP_SSH_DIR/node.pem"
                                 chmod 400 "$TMP_SSH_DIR/node.pem"
                                 export TF_VAR_private_key_path="$TMP_SSH_DIR/node.pem"
+                                
                                 terraform init
                                 terraform apply -auto-approve
                             '''
