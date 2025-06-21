@@ -16,20 +16,19 @@ pipeline {
         stage('Terraform Init & Apply') {
             steps {
                 withCredentials([
-                    file(credentialsId: 'node-key', variable: 'NODE_PEM'),
-                    usernamePassword(credentialsId: 'aws-creds', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')
+                    file(credentialsId: 'node-key', variable: 'NODE_PEM')
                 ]) {
                     dir('terraform-docker/terraform') {
-                        sh '''
-                            mkdir -p .ssh
-                            cp $NODE_PEM .ssh/node.pem
-                            chmod 400 .ssh/node.pem
-                            export TF_VAR_private_key_path=$(pwd)/.ssh/node.pem
-                            export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
-                            export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
-                            terraform init
-                            terraform apply -auto-approve
-                        '''
+                        withAWS(credentials: 'aws-creds', region: 'ap-south-1') {
+                            sh '''
+                                mkdir -p .ssh
+                                cp $NODE_PEM .ssh/node.pem
+                                chmod 400 .ssh/node.pem
+                                export TF_VAR_private_key_path=$(pwd)/.ssh/node.pem
+                                terraform init
+                                terraform apply -auto-approve
+                            '''
+                        }
                     }
                 }
             }
