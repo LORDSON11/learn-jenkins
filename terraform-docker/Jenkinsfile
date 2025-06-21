@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "lordson19/terraform-docker-demo"
+        IMAGE_NAME = "lordson19/terraform-docker"
         TAG = "latest"
     }
 
@@ -15,9 +15,14 @@ pipeline {
 
         stage('Terraform Init & Apply') {
             steps {
-                dir('terraform') {
-                    sh 'terraform init'
-                    sh 'terraform apply -auto-approve'
+                withCredentials([file(credentialsId: 'node-key', variable: 'NODE_PEM')]) {
+                    dir('terraform') {
+                        // Copy the secret file to expected path
+                        sh 'cp $NODE_PEM ~/.ssh/node.pem'
+                        sh 'chmod 400 ~/.ssh/node.pem'
+                        sh 'terraform init'
+                        sh 'terraform apply -auto-approve'
+                    }
                 }
             }
         }
@@ -30,10 +35,9 @@ pipeline {
 
         stage('Push to DockerHub') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
+                withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                    sh 'echo "$PASS" | docker login -u "$USER" --password-stdin'
                     sh 'docker push ${IMAGE_NAME}:${TAG}'
-                    sh 'docker logout'
                 }
             }
         }
