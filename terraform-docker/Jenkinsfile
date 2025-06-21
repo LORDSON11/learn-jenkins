@@ -16,7 +16,7 @@ pipeline {
         stage('Terraform Init & Apply') {
             steps {
                 withCredentials([file(credentialsId: 'node-key', variable: 'NODE_PEM')]) {
-                    dir('terraform') {
+                    dir('terraform-docker/terraform') {
                         sh '''
                             mkdir -p .ssh
                             cp $NODE_PEM .ssh/node.pem
