@@ -15,13 +15,20 @@ pipeline {
 
         stage('Terraform Init & Apply') {
             steps {
-                withCredentials([file(credentialsId: 'node-key', variable: 'NODE_PEM')]) {
+                withCredentials([
+                    file(credentialsId: 'node-key', variable: 'NODE_PEM'),
+                    usernamePassword(credentialsId: 'aws-creds', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')
+                ]) {
                     dir('terraform-docker/terraform') {
                         sh '''
                             mkdir -p ${WORKSPACE}/.ssh
                             cp $NODE_PEM ${WORKSPACE}/.ssh/node.pem
                             chmod 400 ${WORKSPACE}/.ssh/node.pem
+
                             export TF_VAR_private_key_path=${WORKSPACE}/.ssh/node.pem
+                            export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+                            export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+
                             terraform init
                             terraform apply -auto-approve
                         '''
