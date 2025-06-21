@@ -2,7 +2,6 @@ provider "aws" {
   region = "ap-south-1"
 }
 
-variable "private_key_path" {}
 
 resource "aws_instance" "docker_ec2" {
   ami           = "ami-0e001c9271cf7f3b9"
