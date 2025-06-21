@@ -26,9 +26,6 @@ pipeline {
                             chmod 400 ${WORKSPACE}/.ssh/node.pem
 
                             export TF_VAR_private_key_path=${WORKSPACE}/.ssh/node.pem
-                            export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
-                            export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
-
                             terraform init
                             terraform apply -auto-approve
                         '''
