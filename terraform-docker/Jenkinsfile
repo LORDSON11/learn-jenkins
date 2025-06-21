@@ -17,11 +17,14 @@ pipeline {
             steps {
                 withCredentials([file(credentialsId: 'node-key', variable: 'NODE_PEM')]) {
                     dir('terraform') {
-                        // Copy the secret file to expected path
-                        sh 'cp $NODE_PEM ~/.ssh/node.pem'
-                        sh 'chmod 400 ~/.ssh/node.pem'
-                        sh 'terraform init'
-                        sh 'terraform apply -auto-approve'
+                        sh '''
+                            mkdir -p ~/.ssh
+                            cp $NODE_PEM ~/.ssh/node.pem
+                            chmod 400 ~/.ssh/node.pem
+
+                            terraform init
+                            terraform apply -auto-approve
+                        '''
                     }
                 }
             }
@@ -36,8 +39,10 @@ pipeline {
         stage('Push to DockerHub') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
-                    sh 'echo "$PASS" | docker login -u "$USER" --password-stdin'
-                    sh 'docker push ${IMAGE_NAME}:${TAG}'
+                    sh '''
+                        echo "$PASS" | docker login -u "$USER" --password-stdin
+                        docker push ${IMAGE_NAME}:${TAG}
+                    '''
                 }
             }
         }
