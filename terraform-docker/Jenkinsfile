@@ -25,6 +25,7 @@ pipeline {
                             cp $NODE_PEM ${WORKSPACE}/.ssh/node.pem
                             chmod 400 ${WORKSPACE}/.ssh/node.pem
                             export TF_VAR_private_key_path=${WORKSPACE}/.ssh/node.pem
+
                             terraform init
                             terraform apply -auto-approve
                         '''
